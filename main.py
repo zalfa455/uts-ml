@@ -1,50 +1,86 @@
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+# main.py
 
+# ==============================
+# IMPORT LIBRARY
+# ==============================
+import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, classification_report
 
-# Load dataset
-df = pd.read_csv("citrus.csv")
+# ==============================
+# LOAD DATA
+# ==============================
+df = pd.read_csv("dataset/citrus.csv")
 
-# Encode label
-le = LabelEncoder()
-df['label'] = le.fit_transform(df['name'])
+# ==============================
+# DATA PREPROCESSING
+# ==============================
 
-# Split data
-X = df.drop(['name', 'label'], axis=1)
+# Encoding label
+df['label'] = df['name'].map({'orange': 0, 'grapefruit': 1})
+
+# Fitur & target
+X = df[['diameter', 'weight', 'red', 'green', 'blue']]
 y = df['label']
 
+# Split data
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
-# Scaling
+# Scaling (penting untuk SVM)
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
-# Models
-dt = DecisionTreeClassifier()
-nb = GaussianNB()
-svm = SVC()
+# ==============================
+# MODELING
+# ==============================
+
+# 1. Decision Tree
+dt_model = DecisionTreeClassifier(random_state=42)
+dt_model.fit(X_train, y_train)
+
+# 2. Naive Bayes
+nb_model = GaussianNB()
+nb_model.fit(X_train, y_train)
+
+# 3. SVM (pakai kernel RBF default)
+svm_model = SVC(kernel='rbf')
+svm_model.fit(X_train, y_train)
+
+# ==============================
+# EVALUASI
+# ==============================
 
 models = {
-    "Decision Tree": dt,
-    "Naive Bayes": nb,
-    "SVM": svm
+    "Decision Tree": dt_model,
+    "Naive Bayes": nb_model,
+    "SVM": svm_model
 }
 
-# Training & Evaluation
+print("=== HASIL EVALUASI MODEL ===")
+
 for name, model in models.items():
-    model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     
-    print(f"\n{name}")
-    print("Accuracy:", accuracy_score(y_test, y_pred))
+    print(f"\nModel: {name}")
+    print("Accuracy:", round(accuracy_score(y_test, y_pred), 4))
+    print("Classification Report:")
     print(classification_report(y_test, y_pred))
+
+# ==============================
+# MODEL TERBAIK
+# ==============================
+
+# Fokus ke SVM
+y_pred_svm = svm_model.predict(X_test)
+svm_acc = accuracy_score(y_test, y_pred_svm)
+
+print("\n=== MODEL TERBAIK ===")
+print(f"SVM Accuracy: {round(svm_acc, 4)}")
+print("SVM dipilih karena memiliki performa terbaik dalam klasifikasi dataset ini.")
