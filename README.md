@@ -128,24 +128,6 @@ python main.py
 
 ---
 
-## 📁 Project Structure
-
-```bash
-uts-ml-fruit-classification/
-│
-├── dataset/
-│   └── citrus.csv
-├── images/
-│   └── hasil-evaluasi.png
-├── main.py
-├── notebook/
-│   └── model.ipynb
-├── README.md
-└── requirements.txt
-```
-
----
-
 ## 🧾 Requirements
 
 ```bash
